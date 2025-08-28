@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>E-Commerce Product Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0b0c10;
+      --card:#111317;
+      --muted:#7a8395;
+      --text:#e7ecf3;
+      --accent:#37b24d;
+      --accent-2:#2f9e44;
+      --danger:#ff6b6b;
+      --ring:#3d82f6;
+      --border:#1b1f27;
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background:radial-gradient(1200px 600px at 10% -10%, #131621 0%, #0b0c10 60%) fixed;
+      line-height:1.45;
+    }
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1200px;margin-inline:auto;padding:24px}
+    .grid{
+      display:grid;gap:24px;
+      grid-template-columns: 1.1fr .9fr;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+
+    .card{background:linear-gradient(180deg,#12151e, #0f1219); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .p-16{padding:16px}
+    .p-20{padding:20px}
+    .p-24{padding:24px}
+    .flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}.gap-20{gap:20px}
+    .muted{color:var(--muted)}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid #1f2530;background:#0f141f;color:#9bb2ff;font-size:12px}
+    .price-row{display:flex;align-items:flex-end;gap:12px}
+    .price{font-size:32px;font-weight:700}
+    .mrp{font-size:16px;text-decoration:line-through;color:#94a3b8}
+    .save{font-size:14px;color:#a7f3d0}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      padding:12px 16px;border-radius:12px;border:1px solid var(--border);
+      background:#151925;color:var(--text);cursor:pointer;transition:.2s ease; font-weight:600
+    }
+    .btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.35)}
+    .btn:active{transform:translateY(0)}
+    .btn.primary{background:linear-gradient(180deg, var(--accent), var(--accent-2)); border-color:transparent; color:#041007}
+    .btn.ghost{background:transparent}
+    .btn.icon{padding:10px;width:42px}
+    .qty{display:flex;align-items:center;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .qty button{background:#131723;border:none;color:var(--text);width:40px;height:40px;cursor:pointer;font-size:18px}
+    .qty input{width:56px;height:40px;background:#0f141f;border:none;color:var(--text);text-align:center;font-weight:700}
+    .divider{height:1px;background:linear-gradient(90deg, transparent, #1f2431, transparent);border:0;margin:16px 0}
+    .list{display:grid;gap:10px;margin:0;padding-left:18px}
+    .list li{color:#c9d4f1}
+
+    /* Gallery */
+    .gallery{display:grid;grid-template-columns:100px 1fr;gap:16px}
+    @media (max-width:680px){ .gallery{grid-template-columns:1fr} }
+    .thumbs{display:grid;gap:10px}
+    .thumbs img{width:100%;aspect-ratio:1;border-radius:12px;object-fit:cover;border:1px solid var(--border);opacity:.75;cursor:pointer;transition:.2s}
+    .thumbs img[aria-selected="true"], .thumbs img:hover{opacity:1; outline:2px solid var(--ring); outline-offset:2px}
+    .mainimg{
+      background:#0b0f18;border:1px solid var(--border);border-radius:16px;position:relative;overflow:hidden
+    }
+    .mainimg img{width:100%;display:block;object-fit:cover;max-height:560px}
+    .zoom{position:absolute;right:12px;bottom:12px}
+    .row{display:flex;flex-wrap:wrap;gap:12px}
+    .swatch{
+      width:36px;height:36px;border-radius:999px;border:2px solid #0f1219;outline:1px solid var(--border);cursor:pointer;transition:.2s
+    }
+    .swatch[aria-pressed="true"]{outline:2px solid var(--ring)}
+    .chip{padding:8px 12px;border:1px solid var(--border);border-radius:12px;background:#0e121a;cursor:pointer}
+    .chip[aria-pressed="true"]{outline:2px solid var(--ring)}
+    .chip[disabled]{opacity:.5;cursor:not-allowed}
+
+    /* Tabs */
+    .tabs{display:flex;gap:8px;border-bottom:1px solid var(--border)}
+    .tabs button{background:transparent;border:none;color:var(--muted);padding:12px 8px;font-weight:600;cursor:pointer}
+    .tabs button[aria-selected="true"]{color:#cfe3ff;border-bottom:2px solid var(--ring)}
+    .tabpanel{padding:14px 0}
+
+    /* Reviews */
+    .stars{display:inline-flex;gap:2px;vertical-align:middle}
+    .stars svg{width:18px;height:18px}
+    .review{display:grid;gap:6px;padding:14px;border:1px solid var(--border);border-radius:12px;background:#0d1119}
+    .reviewer{font-weight:700}
+    .form-row{display:grid;gap:10px}
+    .input, textarea{
+      background:#0c1119;color:var(--text);border:1px solid var(--border);
+      border-radius:12px;padding:10px 12px;resize:vertical
+    }
+    textarea{min-height:90px}
+    .toast{
+      position:fixed;inset:auto 16px 16px auto;background:#0f141f;border:1px solid var(--border);
+      color:#cfe3ff;padding:10px 14px;border-radius:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);
+      transition:.25s ease; pointer-events:none
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="flex items-center justify-between">
+      <nav class="muted">Home › Running › <span style="color:#cfe3ff">Nimbus XT</span></nav>
+      <span class="badge" id="stockBadge">In stock</span>
+    </header>
+
+    <main class="grid" aria-label="Product">
+      <!-- Gallery -->
+      <section class="card p-16">
+        <div class="gallery">
+          <div class="thumbs" id="thumbs"></div>
+          <div class="mainimg">
+            <img id="mainImg" alt="Product image" />
+            <button class="btn icon zoom" id="zoomBtn" title="Open full image" aria-label="Open full image">🔍</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Details / Actions -->
+      <aside class="card p-20">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 style="margin:0 0 4px 0">Nimbus XT Running Shoes</h1>
+            <div class="muted">by Stridelab • <span id="rating"></span> (1,287)</div>
+          </div>
+          <button class="btn icon ghost" id="wishlistBtn" aria-pressed="false" title="Add to Wishlist">♡</button>
+        </div>
+
+        <div class="price-row" style="margin-top:14px">
+          <div class="price" id="price">₹5,999</div>
+          <div class="mrp">₹7,999</div>
+          <div class="save">Save ₹2,000 • 25% OFF</div>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="row">
+          <div>
+            <div class="muted" style="margin-bottom:6px">Color</div>
+            <div class="row" id="colors"></div>
+          </div>
+          <div>
+            <div class="muted" style="margin-bottom:6px">Size (UK)</div>
+            <div class="row" id="sizes"></div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <div class="muted" style="margin-bottom:6px">Quantity</div>
+            <div class="qty" aria-label="Quantity">
+              <button id="qtyDec" aria-label="Decrease quantity">−</button>
+              <input id="qty" value="1" inputmode="numeric" pattern="[0-9]*" aria-live="polite" />
+              <button id="qtyInc" aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+          <div style="align-self:flex-end;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="addToCart">🛒 Add to Cart</button>
+            <button class="btn primary" id="buyNow">Buy Now →</button>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="row muted">
+          <span>🚚 Free delivery: Aug 31 – Sep 2</span>
+          <span>🛡️ 6 months warranty</span>
+        </div>
+
+        <ul class="list" style="margin-top:10px">
+          <li>Breathable knit upper</li>
+          <li>Adaptive arch support</li>
+          <li>High-rebound EVA midsole</li>
+          <li>Anti-slip rubber outsole</li>
+        </ul>
+      </aside>
+    </main>
+
+    <!-- Tabs -->
+    <section class="card p-24" style="margin-top:24px">
+      <div class="tabs" role="tablist" aria-label="Product information tabs">
+        <button role="tab" id="tab-desc" aria-controls="panel-desc" aria-selected="true">Description</button>
+        <button role="tab" id="tab-specs" aria-controls="panel-specs" aria-selected="false">Specifications</button>
+        <button role="tab" id="tab-rev" aria-controls="panel-rev" aria-selected="false">Customer Reviews</button>
+      </div>
+
+      <div id="panel-desc" role="tabpanel" aria-labelledby="tab-desc" class="tabpanel">
+        Designed for daily miles and race-day bursts, Nimbus XT blends cushioning and responsiveness with a breathable upper and secure lockdown.
+      </div>
+
+      <div id="panel-specs" role="tabpanel" aria-labelledby="tab-specs" class="tabpanel" hidden>
+        <ul class="list">
+          <li>Weight: 260 g (UK-9)</li>
+          <li>Drop: 8 mm</li>
+          <li>Materials: Engineered knit, EVA midsole, rubber outsole</li>
+          <li>Country of origin: Made in India</li>
+        </ul>
+      </div>
+
+      <div id="panel-rev" role="tabpanel" aria-labelledby="tab-rev" class="tabpanel" hidden>
+        <div id="reviews" style="display:grid;gap:12px;margin-bottom:16px"></div>
+        <form id="reviewForm" class="card p-16" style="display:grid;gap:12px">
+          <div class="form-row">
+            <label for="revName">Your name</label>
+            <input class="input" id="revName" placeholder="e.g., A. Sharma" required />
+          </div>
+          <div class="form-row">
+            <label for="revRating">Rating</label>
+            <select class="input" id="revRating" required>
+              <option value="5">★★★★★ (5)</option>
+              <option value="4">★★★★☆ (4)</option>
+              <option value="3">★★★☆☆ (3)</option>
+              <option value="2">★★☆☆☆ (2)</option>
+              <option value="1">★☆☆☆☆ (1)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="revText">Your review</label>
+            <textarea id="revText" placeholder="Share your experience..." required></textarea>
+          </div>
+          <button class="btn primary" type="submit">Submit Review</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <dialog id="lightbox" style="border:none;padding:0;background:transparent">
+    <img id="lightboxImg" alt="Zoomed image" style="max-height:85vh;max-width:95vw;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow)" />
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const product = {
+      price: 5999,
+      mrp: 7999,
+      stock: 27,
+      rating: 4.5,
+      ratingCount: 1287,
+      colors: [
+        { name: "Black", value: "#111827" },
+        { name: "Ocean", value: "#0ea5e9" },
+        { name: "Crimson", value: "#ef4444" },
+        { name: "Lime", value: "#84cc16" },
+      ],
+      sizes: ["6","7","8","9","10","11"],
+      images: [
+        { alt: "Side profile", src: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=1200&auto=format&fit=crop" },
+        { alt: "Top view",   src: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop" },
+        { alt: "Heel detail",src: "https://images.unsplash.com/photo-1528701800489-20be3c2ea5be?q=80&w=1200&auto=format&fit=crop" },
+        { alt: "Sole pattern",src:"https://images.unsplash.com/photo-1584735175315-9d5df0d4e1a8?q=80&w=1200&auto=format&fit=crop" },
+      ],
+    };
+
+    const INR = n => new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n);
+
+    // Gallery
+    const thumbs = document.getElementById("thumbs");
+    const mainImg = document.getElementById("mainImg");
+    product.images.forEach((img, i) => {
+      const t = document.createElement("img");
+      t.src = img.src; t.alt = img.alt; t.loading="lazy";
+      t.setAttribute("aria-selected", i===0 ? "true" : "false");
+      t.addEventListener("click", () => {
+        document.querySelectorAll("#thumbs img").forEach(x=>x.setAttribute("aria-selected","false"));
+        t.setAttribute("aria-selected","true");
+        mainImg.src = img.src; mainImg.alt = img.alt;
+      });
+      thumbs.appendChild(t);
+    });
+    mainImg.src = product.images[0].src; mainImg.alt = product.images[0].alt;
+
+    // Zoom
+    const dlg = document.getElementById("lightbox");
+    const dlgImg = document.getElementById("lightboxImg");
+    document.getElementById("zoomBtn").onclick = () => {
+      dlgImg.src = mainImg.src; dlgImg.alt = mainImg.alt;
+      dlg.showModal();
+    };
+    dlg.addEventListener("click", e => { if(e.target===dlg) dlg.close(); });
+
+    // Price & stock
+    document.getElementById("price").textContent = INR(product.price);
+    const save = product.mrp - product.price;
+    document.querySelector(".save").textContent = `Save ${INR(save)} • ${Math.round((save/product.mrp)*100)}% OFF`;
+    document.getElementById("stockBadge").textContent = product.stock>0 ? `In stock (${product.stock} left)` : "Out of stock";
+
+    // Rating stars
+    function starSVG(fill){return `<svg viewBox="0 0 24 24" fill="${fill?'currentColor':'none'}" stroke="currentColor"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z"/></svg>`}
+    function starsHTML(value){
+      const full = Math.floor(value); const half = value-full>=0.5;
+      return Array.from({length:5},(_,i)=> i<full ? starSVG(true) : (i===full && half ? halfStar() : starSVG(false))).join("");
+    }
+    function halfStar(){
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><defs><linearGradient id="half"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="url(#half)"/></svg>`;
+    }
+    document.getElementById("rating").innerHTML = `<span class="stars" aria-label="Rating ${product.rating} out of 5">${starsHTML(product.rating)}</span> ${product.rating.toFixed(1)}`;
+
+    // Colors
+    const colorsWrap = document.getElementById("colors");
+    let selectedColor = product.colors[0];
+    product.colors.forEach((c, idx)=>{
+      const b = document.createElement("button");
+      b.className="swatch"; b.style.background=c.value; b.title=c.name;
+      b.setAttribute("aria-pressed", idx===0 ? "true":"false");
+      b.addEventListener("click",()=>{
+        document.querySelectorAll(".swatch").forEach(x=>x.setAttribute("aria-pressed","false"));
+        b.setAttribute("aria-pressed","true"); selectedColor=c;
+      });
+      colorsWrap.appendChild(b);
+    });
+
+    // Sizes
+    const sizesWrap = document.getElementById("sizes");
+    let selectedSize = product.sizes[2];
+    product.sizes.forEach((s, idx)=>{
+      const btn = document.createElement("button");
+      btn.className="chip"; btn.textContent=s;
+      btn.setAttribute("aria-pressed", idx===2 ? "true":"false");
+      btn.addEventListener("click",()=>{
+        document.querySelectorAll("#sizes .chip").forEach(x=>x.setAttribute("aria-pressed","false"));
+        btn.setAttribute("aria-pressed","true"); selectedSize=s;
+      });
+      sizesWrap.appendChild(btn);
+    });
+
+    // Quantity
+    const qty = document.getElementById("qty");
+    document.getElementById("qtyInc").onclick = ()=> qty.value = Math.min(10, (parseInt(qty.value||"1",10)+1));
+    document.getElementById("qtyDec").onclick = ()=> qty.value = Math.max(1, (parseInt(qty.value||"1",10)-1));
+    qty.addEventListener("input", ()=> {
+      qty.value = String(Math.max(1, Math.min(10, parseInt(qty.value||"1",10) || 1)));
+    });
+
+    // Wishlist
+    const wishlistBtn = document.getElementById("wishlistBtn");
+    wishlistBtn.addEventListener("click", ()=>{
+      const active = wishlistBtn.getAttribute("aria-pressed")==="true";
+      wishlistBtn.setAttribute("aria-pressed", String(!active));
+      wishlistBtn.textContent = !active ? "❤" : "♡";
+      toast(!active ? "Added to wishlist" : "Removed from wishlist");
+    });
+
+    // Cart / Buy
+    document.getElementById("addToCart").onclick = ()=>{
+      toast(`Added • ${selectedColor.name} • UK ${selectedSize} × ${qty.value}`);
+    };
+    document.getElementById("buyNow").onclick = ()=>{
+      toast(`Proceeding to checkout • ${selectedColor.name} • UK ${selectedSize}`);
+    };
+
+    // Tabs
+    const tabs = [
+      {btn: document.getElementById("tab-desc"), panel: document.getElementById("panel-desc")},
+      {btn: document.getElementById("tab-specs"), panel: document.getElementById("panel-specs")},
+      {btn: document.getElementById("tab-rev"), panel: document.getElementById("panel-rev")},
+    ];
+    tabs.forEach(({btn,panel},i)=>{
+      btn.addEventListener("click", ()=>{
+        tabs.forEach(t=>{ t.btn.setAttribute("aria-selected","false"); t.panel.hidden = true; });
+        btn.setAttribute("aria-selected","true"); panel.hidden=false;
+      });
+    });
+
+    // Reviews
+    const reviewsEl = document.getElementById("reviews");
+    const mockReviews = [
+      {name:"Riya", rating:5, text:"Super comfy and light. Perfect for long runs!"},
+      {name:"Karan", rating:4, text:"Good cushioning. Fits true to size."},
+    ];
+    function renderReviews(){
+      reviewsEl.innerHTML = "";
+      mockReviews.forEach(r=>{
+        const div = document.createElement("div");
+        div.className="review";
+        div.innerHTML = `
+          <div class="reviewer">${r.name} • <span class="stars">${starsHTML(r.rating)}</span></div>
+          <div class="muted">${new Date().toLocaleDateString()}</div>
+          <div>${r.text}</div>
+        `;
+        reviewsEl.appendChild(div);
+      });
+    }
+    renderReviews();
+
+    document.getElementById("reviewForm").addEventListener("submit",(e)=>{
+      e.preventDefault();
+      const name = document.getElementById("revName").value.trim() || "Anonymous";
+      const rating = parseInt(document.getElementById("revRating").value,10);
+      const text = document.getElementById("revText").value.trim();
+      if(!text) return;
+      mockReviews.unshift({name, rating, text});
+      renderReviews();
+      e.target.reset();
+      toast("Thanks! Your review was added.");
+    });
+
+    // Toast
+    const toastEl = document.getElementById("toast");
+    let toastTimer;
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> toastEl.classList.remove("show"), 1800);
+    }
+  </script>
+</body>
+</html>
+```
